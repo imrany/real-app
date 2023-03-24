@@ -1,4 +1,4 @@
 
-pub fn sub(){
-    println!("Hello stranger");
+pub fn sub(x:String){
+    println!("Hello {}",x);
 }
