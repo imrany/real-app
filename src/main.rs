@@ -1,6 +1,7 @@
 mod sub;
-use sub::sub;
+use sub::{sub, full_name};
 
 fn main() {
     sub("imran");
+    full_name();
 }
