@@ -19,7 +19,7 @@ fn main()->std::io::Result<()>{
     if std::env::var_os("RUST_LOG").is_none(){
         std::env::set_var("RUST_LOG","actix-web=info");
     }
-    let port=8080;
+    let port=std::env::var("PORT")|8080;
 
     env_logger::init();
     println!("Server running on port {}",port);
