@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 //form struct / type or interface
 #[derive(Deserialize)]
-struct GCDParameters{
+pub struct GCDParameters{
     n: u64,
     m:u64,
 }
