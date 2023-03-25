@@ -1,5 +1,6 @@
 use actix_web::{web, App, HttpServer};
 
+#[path="func/controller.rs"]
 mod controller;
 use controller::{post_gcd, get_index}
 

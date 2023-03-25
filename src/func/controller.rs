@@ -22,22 +22,6 @@ pub fn get_index() -> HttpResponse{
     )
 }
 
-
-
-//gcd function that computes the gcd of n and m
-pub fn gcd(mut n:u64, mut m:u64)->u64{
-    assert!(m!=0&&n!=0);
-    while m !=0{
-        if m<n{
-            let t=m;
-            m=n;
-            n=t;
-        }
-        m=m%n;
-    }
-    n
-}
-
 //post handler (form post)
 pub fn post_gcd(form: web::Form<GCDParameters>) -> HttpResponse{
     if form.n==0||form.m==0 {
@@ -49,4 +33,18 @@ pub fn post_gcd(form: web::Form<GCDParameters>) -> HttpResponse{
     format!("The greatest common divisor of {} and {} is <b>{}</b>",
     form.n, form.m , gcd(form.n, form.m));
     HttpResponse::Ok().content_type("text/html").body(response)
+}
+
+//gcd function that computes the gcd of n and m
+fn gcd(mut n:u64, mut m:u64)->u64{
+    assert!(m!=0&&n!=0);
+    while m !=0{
+        if m<n{
+            let t=m;
+            m=n;
+            n=t;
+        }
+        m=m%n;
+    }
+    n
 }
