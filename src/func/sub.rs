@@ -1,5 +1,5 @@
 
-pub fn sub(mut x:&str){
+pub fn sub(x:&str){
     println!("Hello {}",x);
 }
 
