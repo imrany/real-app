@@ -1,8 +1,8 @@
 use actix_web::{HttpServer, App, web::Data, middleware::Logger};
 
-#[path="func/sub.rs"]
-mod sub;
-use sub::{
+#[path="func/routes.rs"]
+mod routes;
+use routes::{
     get_books,
     first_page,
 };
