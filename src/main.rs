@@ -1,8 +1,16 @@
-#[path="func/sub.rs"]
-mod sub;
-use sub::{sub, full_name};
+use std::error::Error;
+use sqlx::Row;
 
-fn main() {
-    sub("imran");
-    full_name();
+#[tokio::main]
+async fn main()->Result<(), Box<dyn Error>>{
+    let url="postgres://admin:password123@0.0.0.0:6500/heallth";
+    let pool=sqlx::postgres::PgPool::connect(url).await?;
+
+    let res=sqlx::query("SELECT 1 + 1 as sum")
+    .fetch_one(&pool)
+    .await?;
+
+    let sum:i32=res.get("sum");
+    println!("1 + 1 ={}",sum);
+    Ok(())
 }
