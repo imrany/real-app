@@ -1,8 +1,14 @@
+use actix_web::{
+    get,
+    web::Path,
+    web::Json,
+    error::ResponseError,
+    http::{header::ContentType, StatusCode}
+};
+use serde::{Serialize,Deserialize};
+use derive_more::{Display};
 
-pub fn sub(x:&str){
-    println!("Hello {}",x);
-}
-
-pub fn full_name(){
-    println!("Nice name")
-}
+#[get("/books")]
+pub async fn get_books()->Json<String>{
+    return Json("hello world".to_string());
+} 
