@@ -1,15 +1,16 @@
 use actix_web::{HttpServer, App, web::Data, middleware::Logger};
 
-#[path="/func/sub.rs"]
+#[path="func/sub.rs"]
 mod sub;
 use sub::{
-    get_books
+    get_books,
+    first_page,
 };
 
 
 #[tokio::main]
 async fn main()->std::io::Result<()>{
-    std::env::set_var("RUST_LOG","debug");
+    std::env::set_var("RUST_LOG","actix_web=info");
     std::env::set_var("RUST_BACKTRACE","1");
     env_logger::init();
 
@@ -18,6 +19,7 @@ async fn main()->std::io::Result<()>{
         App::new()
         .wrap(logger)
         .service(get_books)
+        .service(first_page)
     })
     .bind(("127.0.0.1",8000))?
     .run()
