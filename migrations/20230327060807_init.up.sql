@@ -4,4 +4,4 @@
     author varchar not null,
     isbn varchar not null
  );
- create unique idex book_isbn_idx on book (isbn);
+ create unique index book_isbn_idx on book (isbn);
