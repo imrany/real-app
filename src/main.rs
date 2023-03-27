@@ -1,4 +1,4 @@
-use actix_web::{HttpServer, App, web::Data, middleware::Logger};
+use actix_web::{HttpServer, App, middleware::Logger};
 
 #[path="func/routes.rs"]
 mod routes;

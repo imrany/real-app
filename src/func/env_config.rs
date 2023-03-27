@@ -1,4 +1,5 @@
 
+#[allow(non_snake_case)]
 #[derive(Debug,Clone)]
 pub struct EnvConfig{
     pub database_url: String,
