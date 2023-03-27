@@ -14,6 +14,9 @@ async fn main()->std::io::Result<()>{
     std::env::set_var("RUST_BACKTRACE","1");
     env_logger::init();
 
+    // let server_host=std::env::var("POSTGRES_HOST").expect("SERVER_HOST is must be set");
+    let server_host:&str="127.0.0.1";
+
     HttpServer::new(move ||{
         let logger=Logger::default();
         App::new()
@@ -21,7 +24,7 @@ async fn main()->std::io::Result<()>{
         .service(get_books)
         .service(first_page)
     })
-    .bind(("127.0.0.1",8000))?
+    .bind((server_host,8000))?
     .run()
     .await
 }
