@@ -1,19 +1,33 @@
-use actix_web::{HttpServer, App, middleware::Logger};
+use actix_web::{web::Data, HttpServer, App, middleware::Logger};
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use dotenv::dotenv;
+
+pub struct AppState{
+    db:Pool<Postgres>
+} 
 
 #[path="func/routes.rs"]
 mod routes;
 use routes::{
     get_books,
     first_page,
+    add_book,
 };
 
 
 #[tokio::main]
 async fn main()->std::io::Result<()>{
+    dotenv().ok();
     std::env::set_var("RUST_LOG","actix_web=info");
     std::env::set_var("RUST_BACKTRACE","1");
     env_logger::init();
 
+    let database_url=std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let pool=PgPoolOptions::new()
+     .max_connections(5)
+     .connect(&database_url)
+     .await
+     .expect("Error build a postgres connection pool");
     // let server_host=std::env::var("POSTGRES_HOST").expect("SERVER_HOST is must be set");
     let server_host:&str="127.0.0.1";
 
@@ -21,8 +35,10 @@ async fn main()->std::io::Result<()>{
         let logger=Logger::default();
         App::new()
         .wrap(logger)
+        .app_data(Data::new(AppState {db:pool.clone()}))
         .service(get_books)
         .service(first_page)
+        .service(add_book)
     })
     .bind((server_host,8000))?
     .run()

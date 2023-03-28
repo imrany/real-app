@@ -1,21 +1,20 @@
 use actix_web::{
     get,
     post,
-    web,
-    web::Path,
-    web::Json,
-    error::ResponseError,
-    http::{header::ContentType, StatusCode},
+    web::{Json, Data},
+    // error::ResponseError,
+    // http::{header::ContentType, StatusCode},
     Responder,
     HttpResponse,
 };
 mod models;
 use models::Book;
-use sqlx::Row;
+use sqlx::{FromRow, self};
 // use serde_json::Json;
 // use crate::AppState;
+use crate::AppState;
 
-use serde::{Serialize,Deserialize};
+// use serde::{Serialize,Deserialize};
 // use derive_more::{Display};
 #[allow(non_snake_case)]
 #[get("/")]
@@ -24,30 +23,34 @@ pub async fn first_page()->Json<String>{
 }
 
 #[get("/books")]
-pub async fn get_books()->Json<String>{
-    return Json("hello world".to_string());
+pub async fn get_books(state:Data<AppState>)->impl Responder{
+    // return Json("hello world".to_string());
+    match sqlx::query_as::<_, Book>("SELECT title, author, isbn FROM book")
+     .fetch_all(&state.db)
+     .await
+     {
+        Ok(books)=>HttpResponse::Ok().json(books),
+        Err(_)=>HttpResponse::NotFound().json("No books found")
+     }
 } 
 
 #[post("/books/add")]
 pub async fn add_book(
-    body:web::Json<Book>,
+    state:Data<AppState>,
+    body:Json<Book>,
     // data:web::Data<AppState>,
 )-> impl Responder{
-    let db=std::env::var("DATABASE_URL");
-    let add_a_book=sqlx::query_as!(Book,
-        "INSERT INTO book(title, author, isbn) VALUES ($1, $2, $3) RETURNING *",
-        body.title.to_string(),
-        body.author.to_string(),
-        body.isbn.to_string(),
+    match sqlx::query_as::<_,Book>(
+        "INSERT INTO book (title, author, isbn) VALUES ($1, $2, $3) RETURNING *",
     )
-    .fetch_one(db)
-    .await;
-
-    match add_a_book{
-        Ok(Book)=>{
-            let response=Json(add_a_book);
-            return HttpResponse::Ok().json(response);
-        }
+    .bind(body.title.to_string())
+    .bind(body.author.to_string())
+    .bind(body.isbn.to_string())
+    .fetch_one(&state.db)
+    .await
+    {
+        Ok(book)=>HttpResponse::Ok().json(book),
+        Err(_)=>HttpResponse::InternalServerError().json("Fail to create book")
     }
 
 }
