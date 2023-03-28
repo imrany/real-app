@@ -4,6 +4,7 @@ that support cross-platform resource sharing (cors).
 
 
 We added some new dependencies
-[x] actix-cors
-[x] jsonwebtoken
-[x] argon2 (for password encrypting and decrypting)
+
+* actix-cors
+* jsonwebtoken
+* argon2 (for password encrypting and decrypting)
