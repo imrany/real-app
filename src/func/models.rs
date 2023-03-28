@@ -10,3 +10,9 @@ pub struct Book{
     pub author: String,
     pub isbn: String,
 }
+
+#[derive(Debug, Deserialize, sqlx::FromRow, Serialize, Clone)]
+pub struct PutBook{
+    pub title:String,
+    pub author: String,
+}

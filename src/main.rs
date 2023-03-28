@@ -12,6 +12,9 @@ use routes::{
     get_books,
     first_page,
     add_book,
+    update_book,
+    get_book,
+    delete_book,
 };
 
 
@@ -39,6 +42,9 @@ async fn main()->std::io::Result<()>{
         .service(get_books)
         .service(first_page)
         .service(add_book)
+        .service(get_book)
+        .service(update_book)
+        .service(delete_book)
     })
     .bind((server_host,8000))?
     .run()
