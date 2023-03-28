@@ -8,9 +8,9 @@
 
  -- Added users table
 create table users (
-   username varchar(100) not null,
-   email varchar(100) not null,
-   pass_word varchar(24) not null 
+   username varchar  not null,
+   email varchar not null,
+   pass_word varchar not null 
 );
 create unique index email_idx on users (email);
 
