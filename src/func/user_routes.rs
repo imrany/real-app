@@ -9,6 +9,7 @@ use actix_web::{
 };
 use sqlx::{self};
 use crate::AppState;
+
 mod models;
 use models::{
     User,
@@ -16,6 +17,21 @@ use models::{
     CreateUser,
     UpdateUser,
 };
+
+#[get("/users")]
+pub async fn get_users(
+    state:Data<AppState>,
+)->impl Responder{
+    match sqlx::query_as::<_,User>(
+        "SELECT username,email FROM users"
+    )
+    .fetch_all(&state.db)
+    .await
+    {
+        Ok(users)=>HttpResponse::Ok().json(users),
+        Err(err)=>HttpResponse::BadRequest().json(["Users not found",&err.to_string()])
+    }
+}
 
 #[get("/users/{email}")]
 pub async  fn get_user_info(
@@ -35,8 +51,8 @@ pub async  fn get_user_info(
     }
 }
 
-#[post("/users/add")]
-pub async fn add_user(
+#[post("/auth/register")]
+pub async fn register_user(
     body:Json<CreateUser>,
     state:Data<AppState>,
 )->impl Responder{
@@ -50,20 +66,37 @@ pub async fn add_user(
     .await
     {
         Ok(created_user)=>HttpResponse::Ok().json(created_user),
-        Err(err)=>HttpResponse::InternalServerError().json(["Failed to create user",&err.to_string()])
+        Err(err)=>HttpResponse::InternalServerError().json(["Failed to registe user",&err.to_string()])
+    }
+}
+
+#[post("/auth/login")]
+pub async fn login_user(
+    body:Json<LoginUser>,
+    state:Data<AppState>,
+)->impl Responder{
+    match sqlx::query_as::<_,User>(
+        "SELECT username, email, pass_word FROM users WHERE email=$1 AND pass_word=$2"
+    )
+    .bind(body.email.to_string())
+    .bind(body.pass_word.to_string())
+    .fetch_one(&state.db)
+    .await
+    {
+        Ok(login_user)=>HttpResponse::Ok().json(login_user),
+        Err(err)=>HttpResponse::InternalServerError().json(["Failed to login",&err.to_string()])
     }
 }
 
 #[put("/users/update/{email}")]
-pub async update_user_details(
+pub async fn update_user_details(
     body:Json<UpdateUser>,
     state:Data<AppState>,
     path:Path<String>,
 )->impl Responder{
     let email=path.into_inner();
-    match sqlx::query_as::<_,UpdateUser>(
-        "UPDATE users SET username=$1, pass_word=$2 WHERE email=$1 RETURNING *"
-    )
+    let query="UPDATE users SET username=$1, pass_word=$2 WHERE email=$3 RETURNING username, pass_word";
+    match sqlx::query_as::<_,UpdateUser>(query)
     .bind(body.username.to_string())
     .bind(body.pass_word.to_string())
     .bind(email)
@@ -71,12 +104,12 @@ pub async update_user_details(
     .await
     {
         Ok(user_detail)=>HttpResponse::Ok().json(user_detail),
-        Err(err)=>HttpResponse::NotFound().json(["User with that email, wasn't found",&err.to_string()])
+        Err(err)=>HttpResponse::NotFound().json(["Failed to update, User not found",&err.to_string()])
     }
 }
 
 #[delete("/users/delete/{email}")]
-pub async delete_user(
+pub async fn delete_user(
     state:Data<AppState>,
     path:Path<String>,
 )->impl Responder{

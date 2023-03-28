@@ -39,7 +39,6 @@ pub struct LoginUser{
 
 #[derive(Debug, Deserialize, FromRow, Serialize, Clone)]
 pub struct UpdateUser{
-    pub username?:String,
-    pub email?:String,
-    pub pass_word?:String
+    pub username:String,
+    pub pass_word:String
 }
