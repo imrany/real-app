@@ -97,27 +97,37 @@ pub async fn login_user(
     body:Json<LoginUser>,
     state:Data<AppState>,
 )->impl Responder{
-    match sqlx::query_as::<_,User>(
+    let query_result= sqlx::query_as::<_,CreateUser>(
         "SELECT username, email, pass_word FROM users WHERE email=$1"
     )
     .bind(body.email.to_string())
     .bind(body.pass_word.to_string())
     .fetch_one(&state.db)
-    .await
-    {
-        Ok(login_user)=>{
-            let parsed_hash=PasswordHash::new(body.pass_word.to_string())?;
-            Argon2::default().verify_password(login_user.pass_word.as_bytes(), &parsed_hash).is_ok()
-            .map(false,|_| true);
-            
-            if parsed_hash{
-                HttpResponse::Ok().json(login_user)
-            }else{
-                HttpResponse::NotAutorized().json("Not authorized")
-            }
-        },
-        Err(err)=>HttpResponse::InternalServerError().json(["Failed to login",&err.to_string()])
+    .await;
+
+    let is_valid=query_result.to_owned().map_or(false, |CreateUser|{
+        let parsed_hash=PasswordHash::new(&CreateUser.pass_word).unwrap();
+        Argon2::default().verify_password(body.pass_word.as_bytes(),&parsed_hash)
+        .map_or(false,|_| true)
+    });
+    if !is_valid{
+        return HttpResponse::BadRequest().json("Invalid email or password");
     }
+    let user=query_result.unwrap();
+    HttpResponse::Ok().json(query_result)
+       
+
+    // {
+    //     Ok(login_user)=>HttpResponse::Ok().json(login_user),
+    //      // let parsed_hash=PasswordHash::new(login_user.pass_word.to_string());
+    //         // Argon2::default().verify_password(login_user.pass_word.as_bytes(), &parsed_hash).is_ok()
+            
+    //         // if parsed_hash{
+    //         // }else{
+    //         //     HttpResponse::NotFound().json("Not authorized")
+    //         // }
+    //     Err(err)=>HttpResponse::InternalServerError().json(["Failed to login",&err.to_string()])
+    // }
 }
 
 #[put("/users/update/{email}")]
