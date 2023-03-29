@@ -1,4 +1,4 @@
-use actix_web::{web::Data, HttpServer, App, middleware::Logger};
+use actix_web::{web::Data, http, HttpServer, App, middleware::Logger};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use dotenv::dotenv;
 use actix_cors::Cors;
@@ -49,9 +49,9 @@ async fn main()->std::io::Result<()>{
         let logger=Logger::default();
         let cors = Cors::default()
         .allowed_origin("http://localhost:3000")
-        .allowed_origin_fn(|origin, _req_head| {
-            origin.as_bytes().ends_with(b".rust-lang.org")
-        })
+        // .allowed_origin_fn(|origin, _req_head| {
+        //     origin.as_bytes().ends_with(b".rust-lang.org")
+        // })
         .allowed_methods(vec!["GET", "POST","DELETE", "PUT"])
         .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
         .allowed_header(http::header::CONTENT_TYPE)
@@ -59,6 +59,7 @@ async fn main()->std::io::Result<()>{
 
         App::new()
         .wrap(logger)
+        .wrap(cors)
         .app_data(Data::new(AppState {db:pool.clone()}))
         .service(get_books)
         .service(first_page)
