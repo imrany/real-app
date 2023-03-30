@@ -42,8 +42,10 @@ async fn main()->std::io::Result<()>{
      .connect(&database_url)
      .await
      .expect("Error build a postgres connection pool");
-    // let server_host=std::env::var("POSTGRES_HOST").expect("SERVER_HOST is must be set");
-    let server_host:&str="127.0.0.1";
+     // let server_host:&str="127.0.0.1";
+    let server_host=std::env::var("SERVER_HORT").expect("SERVER_HOST is must be set");
+    let port =std::env::var("PORT").expect("PORT must be set");
+    let server:(String, u16)=(server_host.to_string(),port.parse().unwrap());
 
     HttpServer::new(move ||{
         let logger=Logger::default();
@@ -75,7 +77,7 @@ async fn main()->std::io::Result<()>{
         .service(update_user_details)
         .service(delete_user)
     })
-    .bind((server_host,8000))?
+    .bind(server)?
     .run()
     .await
 }
