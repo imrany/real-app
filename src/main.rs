@@ -48,7 +48,7 @@ async fn main()->std::io::Result<()>{
     HttpServer::new(move ||{
         let logger=Logger::default();
         let cors = Cors::default()
-        .allowed_origin("http://localhost:3000")
+        // .allowed_origin("http://localhost:3000")
         // .allowed_origin_fn(|origin, _req_head| {
         //     origin.as_bytes().ends_with(b".rust-lang.org")
         // })
